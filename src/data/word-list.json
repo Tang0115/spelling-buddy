@@ -1,0 +1,1134 @@
+[
+  {
+    "word": "and",
+    "grade": 0
+  },
+  {
+    "word": "are",
+    "grade": 0
+  },
+  {
+    "word": "but",
+    "grade": 0
+  },
+  {
+    "word": "for",
+    "grade": 0
+  },
+  {
+    "word": "from",
+    "grade": 0
+  },
+  {
+    "word": "had",
+    "grade": 0
+  },
+  {
+    "word": "have",
+    "grade": 0
+  },
+  {
+    "word": "his",
+    "grade": 0
+  },
+  {
+    "word": "not",
+    "grade": 0
+  },
+  {
+    "word": "one",
+    "grade": 0
+  },
+  {
+    "word": "that",
+    "grade": 0
+  },
+  {
+    "word": "the",
+    "grade": 0
+  },
+  {
+    "word": "they",
+    "grade": 0
+  },
+  {
+    "word": "this",
+    "grade": 0
+  },
+  {
+    "word": "was",
+    "grade": 0
+  },
+  {
+    "word": "what",
+    "grade": 0
+  },
+  {
+    "word": "with",
+    "grade": 0
+  },
+  {
+    "word": "word",
+    "grade": 0
+  },
+  {
+    "word": "you",
+    "grade": 0
+  },
+  {
+    "word": "all",
+    "grade": 1
+  },
+  {
+    "word": "ate",
+    "grade": 1
+  },
+  {
+    "word": "away",
+    "grade": 1
+  },
+  {
+    "word": "ball",
+    "grade": 1
+  },
+  {
+    "word": "big",
+    "grade": 1
+  },
+  {
+    "word": "black",
+    "grade": 1
+  },
+  {
+    "word": "blue",
+    "grade": 1
+  },
+  {
+    "word": "brown",
+    "grade": 1
+  },
+  {
+    "word": "came",
+    "grade": 1
+  },
+  {
+    "word": "can",
+    "grade": 1
+  },
+  {
+    "word": "come",
+    "grade": 1
+  },
+  {
+    "word": "did",
+    "grade": 1
+  },
+  {
+    "word": "down",
+    "grade": 1
+  },
+  {
+    "word": "eat",
+    "grade": 1
+  },
+  {
+    "word": "find",
+    "grade": 1
+  },
+  {
+    "word": "fly",
+    "grade": 1
+  },
+  {
+    "word": "four",
+    "grade": 1
+  },
+  {
+    "word": "funny",
+    "grade": 1
+  },
+  {
+    "word": "get",
+    "grade": 1
+  },
+  {
+    "word": "give",
+    "grade": 1
+  },
+  {
+    "word": "going",
+    "grade": 1
+  },
+  {
+    "word": "good",
+    "grade": 1
+  },
+  {
+    "word": "has",
+    "grade": 1
+  },
+  {
+    "word": "help",
+    "grade": 1
+  },
+  {
+    "word": "here",
+    "grade": 1
+  },
+  {
+    "word": "into",
+    "grade": 1
+  },
+  {
+    "word": "jump",
+    "grade": 1
+  },
+  {
+    "word": "like",
+    "grade": 1
+  },
+  {
+    "word": "little",
+    "grade": 1
+  },
+  {
+    "word": "look",
+    "grade": 1
+  },
+  {
+    "word": "made",
+    "grade": 1
+  },
+  {
+    "word": "must",
+    "grade": 1
+  },
+  {
+    "word": "new",
+    "grade": 1
+  },
+  {
+    "word": "now",
+    "grade": 1
+  },
+  {
+    "word": "our",
+    "grade": 1
+  },
+  {
+    "word": "out",
+    "grade": 1
+  },
+  {
+    "word": "play",
+    "grade": 1
+  },
+  {
+    "word": "pretty",
+    "grade": 1
+  },
+  {
+    "word": "ran",
+    "grade": 1
+  },
+  {
+    "word": "red",
+    "grade": 1
+  },
+  {
+    "word": "ride",
+    "grade": 1
+  },
+  {
+    "word": "saw",
+    "grade": 1
+  },
+  {
+    "word": "say",
+    "grade": 1
+  },
+  {
+    "word": "she",
+    "grade": 1
+  },
+  {
+    "word": "about",
+    "grade": 2
+  },
+  {
+    "word": "add",
+    "grade": 2
+  },
+  {
+    "word": "afraid",
+    "grade": 2
+  },
+  {
+    "word": "air",
+    "grade": 2
+  },
+  {
+    "word": "almost",
+    "grade": 2
+  },
+  {
+    "word": "also",
+    "grade": 2
+  },
+  {
+    "word": "always",
+    "grade": 2
+  },
+  {
+    "word": "animal",
+    "grade": 2
+  },
+  {
+    "word": "another",
+    "grade": 2
+  },
+  {
+    "word": "answer",
+    "grade": 2
+  },
+  {
+    "word": "any",
+    "grade": 2
+  },
+  {
+    "word": "apple",
+    "grade": 2
+  },
+  {
+    "word": "around",
+    "grade": 2
+  },
+  {
+    "word": "ask",
+    "grade": 2
+  },
+  {
+    "word": "baby",
+    "grade": 2
+  },
+  {
+    "word": "back",
+    "grade": 2
+  },
+  {
+    "word": "bad",
+    "grade": 2
+  },
+  {
+    "word": "basket",
+    "grade": 2
+  },
+  {
+    "word": "because",
+    "grade": 2
+  },
+  {
+    "word": "been",
+    "grade": 2
+  },
+  {
+    "word": "before",
+    "grade": 2
+  },
+  {
+    "word": "began",
+    "grade": 2
+  },
+  {
+    "word": "behind",
+    "grade": 2
+  },
+  {
+    "word": "best",
+    "grade": 2
+  },
+  {
+    "word": "better",
+    "grade": 2
+  },
+  {
+    "word": "between",
+    "grade": 2
+  },
+  {
+    "word": "birthday",
+    "grade": 2
+  },
+  {
+    "word": "body",
+    "grade": 2
+  },
+  {
+    "word": "both",
+    "grade": 2
+  },
+  {
+    "word": "box",
+    "grade": 2
+  },
+  {
+    "word": "breakfast",
+    "grade": 2
+  },
+  {
+    "word": "bright",
+    "grade": 2
+  },
+  {
+    "word": "bring",
+    "grade": 2
+  },
+  {
+    "word": "brush",
+    "grade": 2
+  },
+  {
+    "word": "build",
+    "grade": 2
+  },
+  {
+    "word": "butter",
+    "grade": 2
+  },
+  {
+    "word": "buy",
+    "grade": 2
+  },
+  {
+    "word": "call",
+    "grade": 2
+  },
+  {
+    "word": "candy",
+    "grade": 2
+  },
+  {
+    "word": "carry",
+    "grade": 2
+  },
+  {
+    "word": "change",
+    "grade": 2
+  },
+  {
+    "word": "cheese",
+    "grade": 2
+  },
+  {
+    "word": "cherry",
+    "grade": 2
+  },
+  {
+    "word": "circle",
+    "grade": 2
+  },
+  {
+    "word": "clean",
+    "grade": 2
+  },
+  {
+    "word": "clear",
+    "grade": 2
+  },
+  {
+    "word": "clothes",
+    "grade": 2
+  },
+  {
+    "word": "coat",
+    "grade": 2
+  },
+  {
+    "word": "cold",
+    "grade": 2
+  },
+  {
+    "word": "color",
+    "grade": 2
+  },
+  {
+    "word": "corner",
+    "grade": 2
+  },
+  {
+    "word": "cotton",
+    "grade": 2
+  },
+  {
+    "word": "cover",
+    "grade": 2
+  },
+  {
+    "word": "cross",
+    "grade": 2
+  },
+  {
+    "word": "cut",
+    "grade": 2
+  },
+  {
+    "word": "dance",
+    "grade": 2
+  },
+  {
+    "word": "dear",
+    "grade": 2
+  },
+  {
+    "word": "deep",
+    "grade": 2
+  },
+  {
+    "word": "dinner",
+    "grade": 2
+  },
+  {
+    "word": "doctor",
+    "grade": 2
+  },
+  {
+    "word": "able",
+    "grade": 3
+  },
+  {
+    "word": "above",
+    "grade": 3
+  },
+  {
+    "word": "accident",
+    "grade": 3
+  },
+  {
+    "word": "ache",
+    "grade": 3
+  },
+  {
+    "word": "active",
+    "grade": 3
+  },
+  {
+    "word": "actual",
+    "grade": 3
+  },
+  {
+    "word": "admire",
+    "grade": 3
+  },
+  {
+    "word": "admit",
+    "grade": 3
+  },
+  {
+    "word": "advice",
+    "grade": 3
+  },
+  {
+    "word": "afresh",
+    "grade": 3
+  },
+  {
+    "word": "afternoon",
+    "grade": 3
+  },
+  {
+    "word": "again",
+    "grade": 3
+  },
+  {
+    "word": "against",
+    "grade": 3
+  },
+  {
+    "word": "airplane",
+    "grade": 3
+  },
+  {
+    "word": "alarm",
+    "grade": 3
+  },
+  {
+    "word": "alive",
+    "grade": 3
+  },
+  {
+    "word": "alley",
+    "grade": 3
+  },
+  {
+    "word": "allow",
+    "grade": 3
+  },
+  {
+    "word": "alone",
+    "grade": 3
+  },
+  {
+    "word": "alphabet",
+    "grade": 3
+  },
+  {
+    "word": "already",
+    "grade": 3
+  },
+  {
+    "word": "although",
+    "grade": 3
+  },
+  {
+    "word": "aluminum",
+    "grade": 3
+  },
+  {
+    "word": "ambulance",
+    "grade": 3
+  },
+  {
+    "word": "anchor",
+    "grade": 3
+  },
+  {
+    "word": "ancient",
+    "grade": 3
+  },
+  {
+    "word": "anger",
+    "grade": 3
+  },
+  {
+    "word": "angle",
+    "grade": 3
+  },
+  {
+    "word": "ankle",
+    "grade": 3
+  },
+  {
+    "word": "announce",
+    "grade": 3
+  },
+  {
+    "word": "ant",
+    "grade": 3
+  },
+  {
+    "word": "anybody",
+    "grade": 3
+  },
+  {
+    "word": "anymore",
+    "grade": 3
+  },
+  {
+    "word": "anyone",
+    "grade": 3
+  },
+  {
+    "word": "anything",
+    "grade": 3
+  },
+  {
+    "word": "anyway",
+    "grade": 3
+  },
+  {
+    "word": "apartment",
+    "grade": 3
+  },
+  {
+    "word": "apology",
+    "grade": 3
+  },
+  {
+    "word": "appear",
+    "grade": 3
+  },
+  {
+    "word": "April",
+    "grade": 3
+  },
+  {
+    "word": "arch",
+    "grade": 3
+  },
+  {
+    "word": "area",
+    "grade": 3
+  },
+  {
+    "word": "argue",
+    "grade": 3
+  },
+  {
+    "word": "arm",
+    "grade": 3
+  },
+  {
+    "word": "army",
+    "grade": 3
+  },
+  {
+    "word": "aroma",
+    "grade": 3
+  },
+  {
+    "word": "arrange",
+    "grade": 3
+  },
+  {
+    "word": "arrive",
+    "grade": 3
+  },
+  {
+    "word": "arrow",
+    "grade": 3
+  },
+  {
+    "word": "article",
+    "grade": 3
+  },
+  {
+    "word": "ash",
+    "grade": 3
+  },
+  {
+    "word": "aside",
+    "grade": 3
+  },
+  {
+    "word": "asleep",
+    "grade": 3
+  },
+  {
+    "word": "assign",
+    "grade": 3
+  },
+  {
+    "word": "assist",
+    "grade": 3
+  },
+  {
+    "word": "astronaut",
+    "grade": 3
+  },
+  {
+    "word": "athlete",
+    "grade": 3
+  },
+  {
+    "word": "attend",
+    "grade": 3
+  },
+  {
+    "word": "attention",
+    "grade": 3
+  },
+  {
+    "word": "august",
+    "grade": 3
+  },
+  {
+    "word": "author",
+    "grade": 3
+  },
+  {
+    "word": "autumn",
+    "grade": 3
+  },
+  {
+    "word": "avocado",
+    "grade": 3
+  },
+  {
+    "word": "awful",
+    "grade": 3
+  },
+  {
+    "word": "awkward",
+    "grade": 3
+  },
+  {
+    "word": "bachelor",
+    "grade": 3
+  },
+  {
+    "word": "bacon",
+    "grade": 3
+  },
+  {
+    "word": "badge",
+    "grade": 3
+  },
+  {
+    "word": "baggage",
+    "grade": 3
+  },
+  {
+    "word": "balance",
+    "grade": 3
+  },
+  {
+    "word": "ability",
+    "grade": 4
+  },
+  {
+    "word": "absence",
+    "grade": 4
+  },
+  {
+    "word": "absorb",
+    "grade": 4
+  },
+  {
+    "word": "abstract",
+    "grade": 4
+  },
+  {
+    "word": "academic",
+    "grade": 4
+  },
+  {
+    "word": "accompany",
+    "grade": 4
+  },
+  {
+    "word": "accurate",
+    "grade": 4
+  },
+  {
+    "word": "achieve",
+    "grade": 4
+  },
+  {
+    "word": "acknowledge",
+    "grade": 4
+  },
+  {
+    "word": "acquaint",
+    "grade": 4
+  },
+  {
+    "word": "acquire",
+    "grade": 4
+  },
+  {
+    "word": "adapt",
+    "grade": 4
+  },
+  {
+    "word": "addition",
+    "grade": 4
+  },
+  {
+    "word": "adequate",
+    "grade": 4
+  },
+  {
+    "word": "adjust",
+    "grade": 4
+  },
+  {
+    "word": "admission",
+    "grade": 4
+  },
+  {
+    "word": "adolescent",
+    "grade": 4
+  },
+  {
+    "word": "adopt",
+    "grade": 4
+  },
+  {
+    "word": "advance",
+    "grade": 4
+  },
+  {
+    "word": "advantage",
+    "grade": 4
+  },
+  {
+    "word": "adventure",
+    "grade": 4
+  },
+  {
+    "word": "advise",
+    "grade": 4
+  },
+  {
+    "word": "advocate",
+    "grade": 4
+  },
+  {
+    "word": "affection",
+    "grade": 4
+  },
+  {
+    "word": "afford",
+    "grade": 4
+  },
+  {
+    "word": "agency",
+    "grade": 4
+  },
+  {
+    "word": "agenda",
+    "grade": 4
+  },
+  {
+    "word": "agree",
+    "grade": 4
+  },
+  {
+    "word": "agreement",
+    "grade": 4
+  },
+  {
+    "word": "agriculture",
+    "grade": 4
+  },
+  {
+    "word": "aid",
+    "grade": 4
+  },
+  {
+    "word": "aim",
+    "grade": 4
+  },
+  {
+    "word": "aircraft",
+    "grade": 4
+  },
+  {
+    "word": "airline",
+    "grade": 4
+  },
+  {
+    "word": "airport",
+    "grade": 4
+  },
+  {
+    "word": "album",
+    "grade": 4
+  },
+  {
+    "word": "alcohol",
+    "grade": 4
+  },
+  {
+    "word": "alert",
+    "grade": 4
+  },
+  {
+    "word": "alien",
+    "grade": 4
+  },
+  {
+    "word": "align",
+    "grade": 4
+  },
+  {
+    "word": "alike",
+    "grade": 4
+  },
+  {
+    "word": "alligator",
+    "grade": 4
+  },
+  {
+    "word": "allocate",
+    "grade": 4
+  },
+  {
+    "word": "along",
+    "grade": 4
+  },
+  {
+    "word": "alternate",
+    "grade": 4
+  },
+  {
+    "word": "altitude",
+    "grade": 4
+  },
+  {
+    "word": "amateur",
+    "grade": 4
+  },
+  {
+    "word": "amazing",
+    "grade": 4
+  },
+  {
+    "word": "ambition",
+    "grade": 4
+  },
+  {
+    "word": "amount",
+    "grade": 4
+  },
+  {
+    "word": "abbreviate",
+    "grade": 5
+  },
+  {
+    "word": "abdomen",
+    "grade": 5
+  },
+  {
+    "word": "abhorrent",
+    "grade": 5
+  },
+  {
+    "word": "abilities",
+    "grade": 5
+  },
+  {
+    "word": "abolish",
+    "grade": 5
+  },
+  {
+    "word": "abominable",
+    "grade": 5
+  },
+  {
+    "word": "abroad",
+    "grade": 5
+  },
+  {
+    "word": "abruptly",
+    "grade": 5
+  },
+  {
+    "word": "abundant",
+    "grade": 5
+  },
+  {
+    "word": "accelerate",
+    "grade": 5
+  },
+  {
+    "word": "accept",
+    "grade": 5
+  },
+  {
+    "word": "access",
+    "grade": 5
+  },
+  {
+    "word": "acclaimed",
+    "grade": 5
+  },
+  {
+    "word": "accomplish",
+    "grade": 5
+  },
+  {
+    "word": "accord",
+    "grade": 5
+  },
+  {
+    "word": "account",
+    "grade": 5
+  },
+  {
+    "word": "accuse",
+    "grade": 5
+  },
+  {
+    "word": "accustomed",
+    "grade": 5
+  },
+  {
+    "word": "achievement",
+    "grade": 5
+  },
+  {
+    "word": "acrobat",
+    "grade": 5
+  },
+  {
+    "word": "acute",
+    "grade": 5
+  },
+  {
+    "word": "adjacent",
+    "grade": 5
+  },
+  {
+    "word": "adjoin",
+    "grade": 5
+  },
+  {
+    "word": "adoption",
+    "grade": 5
+  },
+  {
+    "word": "adore",
+    "grade": 5
+  },
+  {
+    "word": "adversary",
+    "grade": 5
+  },
+  {
+    "word": "aerial",
+    "grade": 5
+  },
+  {
+    "word": "aesthetic",
+    "grade": 5
+  },
+  {
+    "word": "affluent",
+    "grade": 5
+  },
+  {
+    "word": "aggravate",
+    "grade": 5
+  },
+  {
+    "word": "aggregate",
+    "grade": 5
+  },
+  {
+    "word": "aggressive",
+    "grade": 5
+  },
+  {
+    "word": "agitate",
+    "grade": 5
+  },
+  {
+    "word": "agony",
+    "grade": 5
+  },
+  {
+    "word": "agreeable",
+    "grade": 5
+  },
+  {
+    "word": "ailment",
+    "grade": 5
+  },
+  {
+    "word": "airborne",
+    "grade": 5
+  },
+  {
+    "word": "alchemist",
+    "grade": 5
+  },
+  {
+    "word": "algebra",
+    "grade": 5
+  },
+  {
+    "word": "alkaline",
+    "grade": 5
+  }
+]

@@ -1,5 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import words from '../data/words.json';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+  useUser,
+} from '@clerk/react';
+import wordList from '../data/word-list.json';
+import { lookupWord, type DictionaryEntry } from '../lib/dictionary';
+import { shuffledCopy } from '../lib/shuffle';
+import { loadProgress, recordAttempt, saveProgress, type Progress } from '../lib/progress';
 import { speak, warmUpVoices } from '../lib/tts';
 import {
   primeMicrophoneForSpelling,
@@ -13,20 +23,40 @@ import { LetterTray } from './LetterTray';
 import { HoldToSpellButton } from './HoldToSpellButton';
 import { FeedbackOverlay } from './FeedbackOverlay';
 
-type WordEntry = (typeof words)[number];
+type WordEntry = (typeof wordList)[number];
 type Phase = 'idle' | 'spelling' | 'result';
 type MicGate = 'pending' | 'ready' | 'blocked' | 'skipped';
 
-export function PracticeScreen() {
+type Props = {
+  onOpenMissed: () => void;
+};
+
+export function PracticeScreen({ onOpenMissed }: Props) {
+  const { user, isLoaded } = useUser();
+  const { userId, isLoaded: authLoaded } = useAuth({ treatPendingAsSignedOut: true });
+  const [progress, setProgress] = useState<Progress>(() => loadProgress(undefined));
+
+  const failStreakRef = useRef(0);
+
   const [wordIndex, setWordIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('idle');
   const [letters, setLetters] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [micGate, setMicGate] = useState<MicGate>(() => (sttSupported ? 'pending' : 'skipped'));
 
+  const [dictEntry, setDictEntry] = useState<DictionaryEntry | null>(null);
+  const [dictLoading, setDictLoading] = useState(true);
+
   const stopListeningRef = useRef<(() => void) | null>(null);
 
-  const currentWord: WordEntry = words[wordIndex];
+  const sessionWords = useMemo(() => shuffledCopy(wordList) as WordEntry[], []);
+
+  const currentWord: WordEntry = sessionWords[wordIndex];
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    setProgress(loadProgress(user ?? undefined));
+  }, [isLoaded, user?.id, user]);
 
   useEffect(() => {
     void warmUpVoices();
@@ -47,9 +77,44 @@ export function PracticeScreen() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      setDictLoading(true);
+      setDictEntry(null);
+      const entry = await lookupWord(currentWord.word);
+      if (cancelled) return;
+      if (entry) {
+        failStreakRef.current = 0;
+        setDictEntry(entry);
+        setDictLoading(false);
+        return;
+      }
+
+      console.warn(`Dictionary lookup failed for "${currentWord.word}" — skipping.`);
+      failStreakRef.current += 1;
+      if (failStreakRef.current >= sessionWords.length) {
+        console.error('Spelling Buddy: dictionary lookup failed for every word in the list.');
+        setDictLoading(false);
+        return;
+      }
+
+      setWordIndex((i) => (i + 1) % sessionWords.length);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentWord.word, wordIndex, sessionWords.length]);
+
   const handlePlayWord = () => void speak(currentWord.word);
-  const handleDefinition = () => void speak(currentWord.definition);
-  const handleSentence = () => void speak(currentWord.sentence);
+  const handleDefinition = () => {
+    if (dictEntry) void speak(dictEntry.definition);
+  };
+  const handleSentence = () => {
+    if (dictEntry) void speak(dictEntry.example);
+  };
 
   const handleSpellStart = () => {
     if (!sttSupported) {
@@ -72,6 +137,12 @@ export function PracticeScreen() {
         setIsCorrect(correct);
         setPhase('result');
         stopListeningRef.current = null;
+
+        setProgress((prev) => {
+          const next = recordAttempt(prev, currentWord.word, correct);
+          saveProgress(user ?? undefined, next);
+          return next;
+        });
       },
     });
 
@@ -84,13 +155,15 @@ export function PracticeScreen() {
   };
 
   const handleNext = () => {
+    failStreakRef.current = 0;
     setLetters([]);
     setIsCorrect(null);
     setPhase('idle');
-    setWordIndex((i) => (i + 1) % words.length);
+    setWordIndex((i) => (i + 1) % sessionWords.length);
   };
 
-  const busy = phase === 'spelling' || phase === 'result' || micGate === 'pending';
+  const playBusy =
+    phase === 'spelling' || phase === 'result' || micGate === 'pending';
 
   const handleRetryMic = () => {
     setMicGate('pending');
@@ -99,6 +172,8 @@ export function PracticeScreen() {
       setMicGate(ok ? 'ready' : 'blocked');
     })();
   };
+
+  const missedCount = progress.missedWords.length;
 
   return (
     <div className="min-h-[100dvh] bg-cream flex items-center justify-center box-border pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
@@ -133,15 +208,37 @@ export function PracticeScreen() {
           </div>
         )}
 
-        <Header wordIndex={wordIndex} total={words.length} grade={currentWord.grade} />
+        <Header wordIndex={wordIndex} total={sessionWords.length} grade={currentWord.grade} />
+
+        {authLoaded && !userId && (
+          <p className="px-5 pt-2 pb-0 text-xs text-coral-800/70 text-center">
+            Sign in to save your progress and practice missed words on any device.
+          </p>
+        )}
+
+        {authLoaded && !!userId && missedCount > 0 && (
+          <div className="px-5 pt-3">
+            <button
+              type="button"
+              onClick={onOpenMissed}
+              className="w-full py-2 rounded-xl text-sm font-semibold border-2 border-amber-200 bg-amber-50/80 text-amber-900 hover:bg-amber-50 transition-colors"
+            >
+              Practice missed words ({missedCount})
+            </button>
+          </div>
+        )}
 
         <div className="p-8">
-          <PlayWordButton onClick={handlePlayWord} disabled={busy} />
+          {dictLoading && (
+            <p className="text-sm text-coral-800/80 text-center mb-2">Loading word…</p>
+          )}
+
+          <PlayWordButton onClick={handlePlayWord} disabled={playBusy} />
 
           <HelperButtons
             onDefinition={handleDefinition}
             onSentence={handleSentence}
-            disabled={busy}
+            disabled={playBusy || dictLoading || !dictEntry}
           />
 
           <LetterTray letters={letters} expectedLength={currentWord.word.length} />
@@ -171,16 +268,46 @@ function Header({
   total: number;
   grade: number;
 }) {
+  const { userId } = useAuth({ treatPendingAsSignedOut: true });
+
   return (
-    <div className="flex items-center justify-between p-5 border-b border-coral-50">
-      <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 bg-amber-50 rounded-md flex items-center justify-center">
-          <span className="text-amber-800" aria-hidden>
-            😊
-          </span>
+    <div className="p-5 border-b border-coral-50 space-y-3">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 bg-amber-50 rounded-md flex items-center justify-center shrink-0">
+            <span className="text-amber-800" aria-hidden>
+              😊
+            </span>
+          </div>
+          <span className="font-medium text-sm text-coral-900">Spelling Buddy</span>
         </div>
-        <span className="font-medium text-sm text-coral-900">Spelling Buddy</span>
+
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {!userId ? (
+            <>
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="py-1.5 px-3 rounded-full text-xs font-semibold bg-coral-400 text-white hover:bg-coral-600 transition-colors"
+                >
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button
+                  type="button"
+                  className="py-1.5 px-3 rounded-full text-xs font-semibold border-2 border-amber-300 text-amber-900 bg-amber-50/80 hover:bg-amber-50 transition-colors"
+                >
+                  Sign up
+                </button>
+              </SignUpButton>
+            </>
+          ) : (
+            <UserButton />
+          )}
+        </div>
       </div>
+
       <div className="flex items-center gap-3 text-sm flex-wrap justify-end">
         <span className="bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full font-medium">
           Word {wordIndex + 1} of {total}
