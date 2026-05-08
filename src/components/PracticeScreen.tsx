@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import words from '../data/words.json';
 import { speak, warmUpVoices } from '../lib/tts';
-import { startListening, sttSupported } from '../lib/stt';
+import {
+  primeMicrophoneForSpelling,
+  retryMicrophonePrime,
+  startListening,
+  sttSupported,
+} from '../lib/stt';
 import { PlayWordButton } from './PlayWordButton';
 import { HelperButtons } from './HelperButtons';
 import { LetterTray } from './LetterTray';
@@ -10,12 +15,14 @@ import { FeedbackOverlay } from './FeedbackOverlay';
 
 type WordEntry = (typeof words)[number];
 type Phase = 'idle' | 'spelling' | 'result';
+type MicGate = 'pending' | 'ready' | 'blocked' | 'skipped';
 
 export function PracticeScreen() {
   const [wordIndex, setWordIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('idle');
   const [letters, setLetters] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [micGate, setMicGate] = useState<MicGate>(() => (sttSupported ? 'pending' : 'skipped'));
 
   const stopListeningRef = useRef<(() => void) | null>(null);
 
@@ -25,6 +32,21 @@ export function PracticeScreen() {
     void warmUpVoices();
   }, []);
 
+  useEffect(() => {
+    if (!sttSupported) return;
+
+    let cancelled = false;
+    void (async () => {
+      const ok = await primeMicrophoneForSpelling();
+      if (cancelled) return;
+      setMicGate(ok ? 'ready' : 'blocked');
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handlePlayWord = () => void speak(currentWord.word);
   const handleDefinition = () => void speak(currentWord.definition);
   const handleSentence = () => void speak(currentWord.sentence);
@@ -32,6 +54,9 @@ export function PracticeScreen() {
   const handleSpellStart = () => {
     if (!sttSupported) {
       window.alert('Use Chrome or Edge for voice spelling — Firefox does not support it yet.');
+      return;
+    }
+    if (micGate !== 'ready') {
       return;
     }
     setLetters([]);
@@ -65,11 +90,49 @@ export function PracticeScreen() {
     setWordIndex((i) => (i + 1) % words.length);
   };
 
-  const busy = phase === 'spelling' || phase === 'result';
+  const busy = phase === 'spelling' || phase === 'result' || micGate === 'pending';
+
+  const handleRetryMic = () => {
+    setMicGate('pending');
+    void (async () => {
+      const ok = await retryMicrophonePrime();
+      setMicGate(ok ? 'ready' : 'blocked');
+    })();
+  };
 
   return (
     <div className="min-h-[100dvh] bg-cream flex items-center justify-center box-border pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-sm overflow-hidden border border-coral-50 relative">
+        {(micGate === 'pending' || micGate === 'blocked') && sttSupported && (
+          <div
+            className="absolute inset-0 z-20 flex items-center justify-center p-6 bg-cream/95 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mic-gate-title"
+            aria-describedby="mic-gate-desc"
+          >
+            <div className="max-w-md w-full rounded-2xl border border-coral-100 bg-white p-8 shadow-lg text-center">
+              <h2 id="mic-gate-title" className="text-lg font-bold text-coral-900 mb-2">
+                {micGate === 'pending' ? 'Microphone setup' : 'Microphone blocked'}
+              </h2>
+              <p id="mic-gate-desc" className="text-sm text-coral-800/90 mb-6">
+                {micGate === 'pending'
+                  ? 'Spelling Buddy needs the microphone when your browser asks. Please tap Allow so your first word isn’t missed.'
+                  : 'We can’t hear your spelling without the microphone. Allow access in your browser settings, then try again.'}
+              </p>
+              {micGate === 'blocked' && (
+                <button
+                  type="button"
+                  onClick={handleRetryMic}
+                  className="w-full py-3 rounded-xl bg-coral-400 hover:bg-coral-600 text-white font-semibold transition-colors"
+                >
+                  Try again
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         <Header wordIndex={wordIndex} total={words.length} grade={currentWord.grade} />
 
         <div className="p-8">
@@ -87,7 +150,7 @@ export function PracticeScreen() {
             onPressStart={handleSpellStart}
             onPressEnd={handleSpellEnd}
             isListening={phase === 'spelling'}
-            disabled={phase === 'result'}
+            disabled={phase === 'result' || (sttSupported ? micGate !== 'ready' : false)}
           />
         </div>
 

@@ -10,6 +10,7 @@ type SpeechRec = {
   onresult: ((ev: SpeechRecognitionEventLike) => void) | null;
   onerror: ((ev: SpeechRecognitionErrorEvent) => void) | null;
   onend: (() => void) | null;
+  onstart: (() => void) | null;
   start: () => void;
   stop: () => void;
 };
@@ -29,6 +30,78 @@ const SpeechRecognitionImpl =
     : undefined;
 
 export const sttSupported = !!SpeechRecognitionImpl;
+
+let primePromise: Promise<boolean> | null = null;
+
+/**
+ * Primes the mic and speech-recognition stack so the browser prompts once on load
+ * instead of during the first “hold to spell”.
+ */
+export function primeMicrophoneForSpelling(): Promise<boolean> {
+  primePromise ??= runMicrophonePrime();
+  return primePromise;
+}
+
+export function retryMicrophonePrime(): Promise<boolean> {
+  primePromise = runMicrophonePrime();
+  return primePromise;
+}
+
+async function runMicrophonePrime(): Promise<boolean> {
+  if (!sttSupported || !SpeechRecognitionImpl) return false;
+
+  if (navigator.mediaDevices?.getUserMedia) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+    } catch {
+      /* SR may still show its own prompt; spelling will fail if both are denied. */
+    }
+  }
+
+  return await new Promise<boolean>((resolve) => {
+    const rec = new SpeechRecognitionImpl();
+    let settled = false;
+    const finish = (ok: boolean) => {
+      if (settled) return;
+      settled = true;
+      try {
+        rec.stop();
+      } catch {
+        /* noop */
+      }
+      resolve(ok);
+    };
+
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.lang = 'en-US';
+    rec.maxAlternatives = 1;
+
+    rec.onerror = (e: SpeechRecognitionErrorEvent) => {
+      const code = e.error ?? '';
+      if (code === 'not-allowed' || code === 'service-not-allowed') {
+        finish(false);
+        return;
+      }
+      finish(true);
+    };
+
+    rec.onend = () => {
+      if (!settled) finish(true);
+    };
+
+    rec.onstart = () => {
+      queueMicrotask(() => finish(true));
+    };
+
+    try {
+      rec.start();
+    } catch {
+      finish(false);
+    }
+  });
+}
 
 export interface SpellingListener {
   onLetter: (letter: string) => void;
