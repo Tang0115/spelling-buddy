@@ -395,12 +395,5 @@ function parseLettersEnhanced(transcript: string, expectedWord: string): string[
     return spaced;
   }
 
-  const compact = transcript.replace(/[^a-z]/gi, '').toUpperCase();
-  if (compact.length >= 2 && compact.length <= 32 && /^[A-Z]+$/.test(compact)) {
-    if (!normalized || [...compact].every((c) => normalized.toUpperCase().includes(c))) {
-      return compact.split('');
-    }
-  }
-
   return [];
 }

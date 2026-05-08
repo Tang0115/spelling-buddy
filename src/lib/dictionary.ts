@@ -8,6 +8,7 @@ export interface DictionaryEntry {
 }
 
 const CACHE_KEY_PREFIX = 'dict:cache:v3:';
+const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 type RawDef = { definition?: string; example?: string };
 
@@ -56,7 +57,11 @@ export async function lookupWord(word: string): Promise<DictionaryEntry | null> 
   const cached = localStorage.getItem(cacheKey);
   if (cached) {
     try {
-      return JSON.parse(cached) as DictionaryEntry;
+      const entry = JSON.parse(cached) as DictionaryEntry;
+      if (Date.now() - entry.fetchedAt < CACHE_TTL_MS) {
+        return entry;
+      }
+      // Cache expired — fall through to re-fetch
     } catch {
       // fall through to refetch on parse error
     }

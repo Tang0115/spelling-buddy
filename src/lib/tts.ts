@@ -124,6 +124,14 @@ export function speak(text: string, opts: { rate?: number } = {}): Promise<void>
   return speakWithBrowser(trimmed, opts);
 }
 
+export async function spellWordAloud(word: string): Promise<void> {
+  const letters = word.toUpperCase().replace(/[^A-Z]/g, '').split('');
+  for (const letter of letters) {
+    await speak(letter, { rate: 0.75 });
+    await new Promise<void>((resolve) => setTimeout(resolve, 280));
+  }
+}
+
 export function warmUpVoices(): Promise<void> {
   return new Promise((resolve) => {
     if (!('speechSynthesis' in window)) return resolve();
