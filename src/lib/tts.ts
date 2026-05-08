@@ -8,6 +8,24 @@ export const ttsSupported =
 
 let puterAudio: HTMLAudioElement | null = null;
 
+const PUTER_TTS_MS = 12_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = window.setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+    promise.then(
+      (v) => {
+        window.clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        window.clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
+}
+
 function pickVoice(): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
   const voices = window.speechSynthesis.getVoices();
@@ -65,7 +83,8 @@ export function speak(text: string, opts: { rate?: number } = {}): Promise<void>
   if (!trimmed) return Promise.resolve();
 
   if (isPuterAiEnabled()) {
-    return speakWithPuter(trimmed).catch(() => speakWithBrowser(trimmed, opts));
+    return withTimeout(speakWithPuter(trimmed), PUTER_TTS_MS, 'Puter TTS')
+      .catch(() => speakWithBrowser(trimmed, opts));
   }
 
   return speakWithBrowser(trimmed, opts);
