@@ -27,6 +27,7 @@ export function HoldToSpellButton({ onPressStart, onPressEnd, isListening, disab
         onMouseLeave={isListening ? end : undefined}
         onTouchStart={start}
         onTouchEnd={end}
+        onTouchCancel={isListening ? end : undefined}
         onContextMenu={(e) => e.preventDefault()}
         className={`w-full py-4 rounded-2xl font-semibold text-white transition-all active:scale-[0.99] select-none touch-none disabled:opacity-50 ${
           isListening
