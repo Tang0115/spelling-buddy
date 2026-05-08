@@ -26,10 +26,36 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
+/** iPhone / iPad / iPod Safari (and iPadOS desktop UA). */
+function isAppleMobile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/i.test(ua)) return true;
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+}
+
 function pickVoice(): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
   const voices = window.speechSynthesis.getVoices();
   if (voices.length === 0) return null;
+
+  const en = voices.filter((v) => v.lang.toLowerCase().startsWith('en'));
+  const appleMobile = isAppleMobile();
+
+  if (appleMobile && en.length > 0) {
+    const enhanced = en.find((v) => /enhanced|premium|improved/i.test(v.name));
+    if (enhanced) return enhanced;
+
+    const natural = en.find((v) =>
+      /samantha|allison|aaron|nicky|jamie|ellie|daniel|melina|flo|fred|shelley|susan/i.test(
+        v.name,
+      ),
+    );
+    if (natural) return natural;
+
+    const notCompact = en.find((v) => !/compact|speech\s*synthesis|robo/i.test(v.name));
+    if (notCompact) return notCompact;
+  }
 
   const preferred = voices.find(
     (v) => v.lang.startsWith('en') && /female|samantha|zira|karen|moira/i.test(v.name),
@@ -37,6 +63,12 @@ function pickVoice(): SpeechSynthesisVoice | null {
   if (preferred) return preferred;
 
   return voices.find((v) => v.lang.startsWith('en')) ?? voices[0];
+}
+
+function defaultBrowserRate(explicit?: number): number {
+  if (explicit !== undefined) return explicit;
+  // iOS often uses a harsher default engine; slower rate reads more naturally for kids.
+  return isAppleMobile() ? 0.66 : 0.85;
 }
 
 async function speakWithPuter(text: string): Promise<void> {
@@ -59,15 +91,17 @@ async function speakWithPuter(text: string): Promise<void> {
   }
 }
 
-function speakWithBrowser(text: string, opts: { rate?: number }): Promise<void> {
-  return new Promise((resolve) => {
-    if (!('speechSynthesis' in window)) return resolve();
+async function speakWithBrowser(text: string, opts: { rate?: number }): Promise<void> {
+  if (!('speechSynthesis' in window)) return;
 
+  await warmUpVoices();
+
+  await new Promise<void>((resolve) => {
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.voice = pickVoice();
-    utterance.rate = opts.rate ?? 0.85;
+    utterance.rate = defaultBrowserRate(opts.rate);
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
 
@@ -94,14 +128,21 @@ export function warmUpVoices(): Promise<void> {
   return new Promise((resolve) => {
     if (!('speechSynthesis' in window)) return resolve();
 
+    // Safari (especially iOS) often returns an empty list until getVoices() runs once or `voiceschanged` fires.
+    void window.speechSynthesis.getVoices();
     if (window.speechSynthesis.getVoices().length > 0) return resolve();
 
-    const onReady = () => {
-      window.speechSynthesis.removeEventListener('voiceschanged', onReady);
+    const done = () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', done);
       resolve();
     };
-    window.speechSynthesis.addEventListener('voiceschanged', onReady);
+    window.speechSynthesis.addEventListener('voiceschanged', done);
 
-    setTimeout(resolve, 1000);
+    const maxWait = isAppleMobile() ? 1800 : 1000;
+    setTimeout(() => {
+      window.speechSynthesis.removeEventListener('voiceschanged', done);
+      void window.speechSynthesis.getVoices();
+      resolve();
+    }, maxWait);
   });
 }
