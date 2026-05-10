@@ -1,3 +1,5 @@
+import { kvGet, kvSet } from './puter-kv';
+
 export interface CustomWordEntry {
   word: string;
   grade: number;
@@ -23,12 +25,27 @@ export function loadCustomWords(): CustomWordEntry[] {
   }
 }
 
-export function saveCustomWords(words: CustomWordEntry[]): void {
-  localStorage.setItem(KEY, JSON.stringify(words));
+export async function loadCustomWordsFromPuter(userId: string): Promise<CustomWordEntry[] | null> {
+  const words = await kvGet<CustomWordEntry[]>(`customWords:${userId}`);
+  if (!Array.isArray(words)) return null;
+  return words.filter(
+    (e): e is CustomWordEntry =>
+      typeof e === 'object' && e !== null && typeof e.word === 'string' && typeof e.grade === 'number',
+  );
 }
 
-export function clearCustomWords(): void {
+export function saveCustomWords(words: CustomWordEntry[], userId?: string): void {
+  localStorage.setItem(KEY, JSON.stringify(words));
+  if (userId) {
+    void kvSet(`customWords:${userId}`, words);
+  }
+}
+
+export function clearCustomWords(userId?: string): void {
   localStorage.removeItem(KEY);
+  if (userId) {
+    void kvSet(`customWords:${userId}`, []);
+  }
 }
 
 /** Parse a parent-typed word list. Each line: "word" or "word, grade". */

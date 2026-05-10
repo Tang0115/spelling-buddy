@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { SignInButton, SignUpButton, UserButton, useAuth, useUser } from '@clerk/react';
+import { SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/react';
 import wordList from '../data/word-list.json';
 import { lookupWord, type DictionaryEntry } from '../lib/dictionary';
 import { shuffledCopy } from '../lib/shuffle';
-import { loadProgress, recordAttempt, saveProgress, type Progress } from '../lib/progress';
+import { loadProgress, loadProgressFromPuter, recordAttempt, saveProgress, type Progress } from '../lib/progress';
 import { speak, spellWordAloud, warmUpVoices } from '../lib/tts';
 import {
   primeMicrophoneForSpelling,
@@ -33,9 +33,8 @@ const gradeByWordLookup = (() => {
 })();
 
 export function MissedWordsScreen({ onBack }: Props) {
-  const { user, isLoaded } = useUser();
-  const { userId } = useAuth({ treatPendingAsSignedOut: true });
-  const [progress, setProgress] = useState<Progress>(() => loadProgress(undefined));
+  const { userId, isLoaded: authLoaded } = useAuth({ treatPendingAsSignedOut: true });
+  const [progress, setProgress] = useState<Progress>(() => loadProgress());
 
   const failStreakRef = useRef(0);
 
@@ -71,9 +70,11 @@ export function MissedWordsScreen({ onBack }: Props) {
   }, [missedSetKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!isLoaded) return;
-    setProgress(loadProgress(user ?? undefined));
-  }, [isLoaded, user?.id, user]);
+    if (!authLoaded || !userId) return;
+    void loadProgressFromPuter(userId).then((p) => {
+      if (p) setProgress(p);
+    });
+  }, [authLoaded, userId]);
 
   // Clamp idx when shuffledMissed shrinks (word graduated)
   useEffect(() => {
@@ -176,7 +177,7 @@ export function MissedWordsScreen({ onBack }: Props) {
 
     setProgress((prev) => {
       const next = recordAttempt(prev, word, correct);
-      saveProgress(user ?? undefined, next);
+      saveProgress(userId ?? undefined, next);
       return next;
     });
   };

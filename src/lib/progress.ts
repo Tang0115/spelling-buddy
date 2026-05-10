@@ -1,6 +1,4 @@
-// Progress in localStorage + Clerk unsafeMetadata (debounced by caller timing).
-
-import type { UserResource } from '@clerk/shared/types';
+import { kvGet, kvSet } from './puter-kv';
 
 export interface MissedWord {
   word: string;
@@ -26,42 +24,29 @@ const EMPTY: Progress = {
   stats: { totalAttempts: 0, totalCorrect: 0 },
 };
 
-export function loadProgress(user: UserResource | null | undefined): Progress {
-  if (user) {
-    const cloud = user.unsafeMetadata?.spellingProgress as Progress | undefined;
-    if (cloud?.version === 1) {
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(cloud));
-      return cloud;
-    }
-  }
-
+export function loadProgress(): Progress {
   const local = localStorage.getItem(LOCAL_KEY);
   if (local) {
     try {
       const parsed = JSON.parse(local) as Progress;
       if (parsed.version === 1) return parsed;
     } catch {
-      // fall through to empty
+      // fall through
     }
   }
-
   return { ...EMPTY, missedWords: [], stats: { ...EMPTY.stats } };
 }
 
-export function saveProgress(user: UserResource | null | undefined, progress: Progress): void {
+export async function loadProgressFromPuter(userId: string): Promise<Progress | null> {
+  const p = await kvGet<Progress>(`progress:${userId}`);
+  if (p?.version === 1) return p;
+  return null;
+}
+
+export function saveProgress(userId: string | undefined, progress: Progress): void {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(progress));
-  if (user) {
-    const prev = user.unsafeMetadata;
-    const base =
-      prev && typeof prev === 'object' && !Array.isArray(prev)
-        ? { ...prev }
-        : {};
-    void user.update({
-      unsafeMetadata: {
-        ...base,
-        spellingProgress: progress,
-      },
-    });
+  if (userId) {
+    void kvSet(`progress:${userId}`, progress);
   }
 }
 

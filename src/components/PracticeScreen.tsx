@@ -4,12 +4,11 @@ import {
   SignUpButton,
   UserButton,
   useAuth,
-  useUser,
 } from '@clerk/react';
 import wordList from '../data/word-list.json';
 import { lookupWord, type DictionaryEntry } from '../lib/dictionary';
 import { shuffledCopy } from '../lib/shuffle';
-import { loadProgress, recordAttempt, saveProgress, type Progress } from '../lib/progress';
+import { loadProgress, loadProgressFromPuter, recordAttempt, saveProgress, type Progress } from '../lib/progress';
 import { speak, spellWordAloud, warmUpVoices } from '../lib/tts';
 import {
   primeMicrophoneForSpelling,
@@ -17,7 +16,7 @@ import {
   startListening,
   sttSupported,
 } from '../lib/stt';
-import { loadCustomWords, type CustomWordEntry } from '../lib/customWords';
+import { loadCustomWords, loadCustomWordsFromPuter, type CustomWordEntry } from '../lib/customWords';
 import { PlayWordButton } from './PlayWordButton';
 import { HelperButtons } from './HelperButtons';
 import { LetterTray } from './LetterTray';
@@ -40,9 +39,8 @@ type Props = {
 };
 
 export function PracticeScreen({ onOpenMissed, onOpenCustomWords, onOpenStats, customWordsVersion }: Props) {
-  const { user, isLoaded } = useUser();
   const { userId, isLoaded: authLoaded } = useAuth({ treatPendingAsSignedOut: true });
-  const [progress, setProgress] = useState<Progress>(() => loadProgress(undefined));
+  const [progress, setProgress] = useState<Progress>(() => loadProgress());
 
   // ── grade filter (persisted) ──────────────────────────────────────────────
   const [gradeFilter, setGradeFilter] = useState<number[]>(() => {
@@ -124,11 +122,16 @@ export function PracticeScreen({ onOpenMissed, onOpenCustomWords, onOpenStats, c
     return letters;
   }, [phase, typeMode, typedInput, letters]);
 
-  // ── load progress when Clerk resolves ─────────────────────────────────────
+  // ── load progress + custom words from Puter KV when auth resolves ──────────
   useEffect(() => {
-    if (!isLoaded) return;
-    setProgress(loadProgress(user ?? undefined));
-  }, [isLoaded, user?.id, user]);
+    if (!authLoaded || !userId) return;
+    void loadProgressFromPuter(userId).then((p) => {
+      if (p) setProgress(p);
+    });
+    void loadCustomWordsFromPuter(userId).then((words) => {
+      if (words) setCustomWordsList(words);
+    });
+  }, [authLoaded, userId]);
 
   useEffect(() => {
     void warmUpVoices();
@@ -209,7 +212,7 @@ export function PracticeScreen({ onOpenMissed, onOpenCustomWords, onOpenStats, c
 
     setProgress((prev) => {
       const next = recordAttempt(prev, word, correct);
-      saveProgress(user ?? undefined, next);
+      saveProgress(userId ?? undefined, next);
       return next;
     });
   };

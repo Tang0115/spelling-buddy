@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
-import { UserButton, useAuth, useUser } from '@clerk/react';
-import { loadProgress, type Progress } from '../lib/progress';
+import { UserButton, useAuth } from '@clerk/react';
+import { loadProgress, loadProgressFromPuter, type Progress } from '../lib/progress';
 
 type Props = {
   onBack: () => void;
 };
 
 export function StatsScreen({ onBack }: Props) {
-  const { user, isLoaded } = useUser();
-  const { userId } = useAuth({ treatPendingAsSignedOut: true });
-  const [progress, setProgress] = useState<Progress>(() => loadProgress(undefined));
+  const { userId, isLoaded: authLoaded } = useAuth({ treatPendingAsSignedOut: true });
+  const [progress, setProgress] = useState<Progress>(() => loadProgress());
 
   useEffect(() => {
-    if (!isLoaded) return;
-    setProgress(loadProgress(user ?? undefined));
-  }, [isLoaded, user?.id, user]);
+    if (!authLoaded || !userId) return;
+    void loadProgressFromPuter(userId).then((p) => {
+      if (p) setProgress(p);
+    });
+  }, [authLoaded, userId]);
 
   const { totalAttempts, totalCorrect } = progress.stats;
   const correctionRate = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : null;
