@@ -108,7 +108,20 @@ export function PracticeScreen({ onOpenMissed, onOpenCustomWords, customWordsVer
   const [sttUnavailable, setSttUnavailable] = useState(false);
 
   const stopListeningRef = useRef<(() => void) | null>(null);
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
   const currentWord: WordEntry = sessionWords[Math.min(wordIndex, sessionWords.length - 1)];
+
+  const trayLetters = useMemo(() => {
+    if (phase === 'result') return letters;
+    if (typeMode) {
+      return typedInput
+        .toUpperCase()
+        .replace(/[^A-Z]/g, '')
+        .split('')
+        .filter(Boolean);
+    }
+    return letters;
+  }, [phase, typeMode, typedInput, letters]);
 
   // ── load progress when Clerk resolves ─────────────────────────────────────
   useEffect(() => {
@@ -119,6 +132,12 @@ export function PracticeScreen({ onOpenMissed, onOpenCustomWords, customWordsVer
   useEffect(() => {
     void warmUpVoices();
   }, []);
+
+  useEffect(() => {
+    if (typeMode && phase !== 'result') {
+      hiddenInputRef.current?.focus();
+    }
+  }, [typeMode, phase]);
 
   // ── prime microphone ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -436,7 +455,17 @@ export function PracticeScreen({ onOpenMissed, onOpenCustomWords, customWordsVer
             disabled={playBusy || dictLoading || !dictEntry}
           />
 
-          <LetterTray letters={letters} expectedLength={currentWord.word.length} />
+          <div
+            onClick={() => typeMode && phase !== 'result' && hiddenInputRef.current?.focus()}
+            className={typeMode && phase !== 'result' ? 'cursor-text' : ''}
+          >
+            <LetterTray
+              letters={trayLetters}
+              expectedLength={currentWord.word.length}
+              overflowContext={typeMode ? 'type' : 'voice'}
+              showCursor={typeMode && phase !== 'result'}
+            />
+          </div>
 
           {!typeMode && (
             <HoldToSpellButton
@@ -448,26 +477,16 @@ export function PracticeScreen({ onOpenMissed, onOpenCustomWords, customWordsVer
           )}
 
           {typeMode && (
-            <div className="mt-8 flex gap-2">
-              <input
-                type="text"
-                value={typedInput}
-                onChange={(e) => setTypedInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleTypedSubmit()}
-                placeholder="Type the spelling…"
-                autoFocus
-                disabled={phase === 'result'}
-                className="flex-1 px-4 py-3 rounded-xl border-2 border-coral-200 focus:border-coral-400 text-coral-900 bg-white outline-none text-sm disabled:opacity-50"
-              />
-              <button
-                type="button"
-                onClick={handleTypedSubmit}
-                disabled={phase === 'result' || !typedInput.trim()}
-                className="px-4 py-3 rounded-xl bg-coral-400 hover:bg-coral-600 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
-              >
-                Submit
-              </button>
-            </div>
+            <input
+              ref={hiddenInputRef}
+              type="text"
+              value={typedInput}
+              onChange={(e) => setTypedInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleTypedSubmit()}
+              disabled={phase === 'result'}
+              aria-hidden="true"
+              className="absolute w-0 h-0 opacity-0 pointer-events-none"
+            />
           )}
 
           {/* Voice / type toggle */}
