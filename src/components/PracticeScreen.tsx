@@ -35,10 +35,11 @@ const GRADE_LABEL: Record<number, string> = { 0: 'K', 1: '1', 2: '2', 3: '3', 4:
 type Props = {
   onOpenMissed: () => void;
   onOpenCustomWords: () => void;
+  onOpenStats: () => void;
   customWordsVersion: number;
 };
 
-export function PracticeScreen({ onOpenMissed, onOpenCustomWords, customWordsVersion }: Props) {
+export function PracticeScreen({ onOpenMissed, onOpenCustomWords, onOpenStats, customWordsVersion }: Props) {
   const { user, isLoaded } = useUser();
   const { userId, isLoaded: authLoaded } = useAuth({ treatPendingAsSignedOut: true });
   const [progress, setProgress] = useState<Progress>(() => loadProgress(undefined));
@@ -421,6 +422,7 @@ export function PracticeScreen({ onOpenMissed, onOpenCustomWords, customWordsVer
           grade={currentWord.grade}
           streak={streak}
           onOpenCustomWords={onOpenCustomWords}
+          onOpenStats={onOpenStats}
         />
 
         {authLoaded && !userId && (
@@ -538,12 +540,14 @@ function Header({
   grade,
   streak,
   onOpenCustomWords,
+  onOpenStats,
 }: {
   wordIndex: number;
   total: number;
   grade: number;
   streak: number;
   onOpenCustomWords: () => void;
+  onOpenStats: () => void;
 }) {
   const { userId } = useAuth({ treatPendingAsSignedOut: true });
 
@@ -587,7 +591,16 @@ function Header({
               </SignUpButton>
             </>
           ) : (
-            <UserButton />
+            <>
+              <button
+                type="button"
+                onClick={onOpenStats}
+                className="py-1.5 px-3 rounded-full text-xs font-semibold border border-coral-200 text-coral-700 hover:bg-coral-50 transition-colors"
+              >
+                Stats
+              </button>
+              <UserButton />
+            </>
           )}
         </div>
       </div>
