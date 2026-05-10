@@ -59,6 +59,7 @@ export function MissedWordsScreen({ onBack }: Props) {
   const streakRef = useRef(0);
 
   const stopListeningRef = useRef<(() => void) | null>(null);
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
   const progressRef = useRef(progress);
   progressRef.current = progress;
 
@@ -81,6 +82,19 @@ export function MissedWordsScreen({ onBack }: Props) {
   }, [shuffledMissed.length]);
 
   const currentWordStr = shuffledMissed[idx]?.word ?? '';
+
+  const trayLetters = useMemo(() => {
+    if (phase === 'result') return letters;
+    if (typeMode) {
+      return typedInput
+        .toUpperCase()
+        .replace(/[^A-Z]/g, '')
+        .split('')
+        .filter(Boolean);
+    }
+    return letters;
+  }, [phase, typeMode, typedInput, letters]);
+
   const grade = useMemo(
     () => gradeByWordLookup.get(currentWordStr.toLowerCase()) ?? 0,
     [currentWordStr],
@@ -89,6 +103,12 @@ export function MissedWordsScreen({ onBack }: Props) {
   useEffect(() => {
     void warmUpVoices();
   }, []);
+
+  useEffect(() => {
+    if (typeMode && phase !== 'result') {
+      hiddenInputRef.current?.focus();
+    }
+  }, [typeMode, phase]);
 
   useEffect(() => {
     if (!sttSupported) return;
@@ -358,7 +378,17 @@ export function MissedWordsScreen({ onBack }: Props) {
                 disabled={playBusy || dictLoading || !dictEntry}
               />
 
-              <LetterTray letters={letters} expectedLength={currentWordStr.length} />
+              <div
+                onClick={() => typeMode && phase !== 'result' && hiddenInputRef.current?.focus()}
+                className={typeMode && phase !== 'result' ? 'cursor-text' : ''}
+              >
+                <LetterTray
+                  letters={trayLetters}
+                  expectedLength={currentWordStr.length}
+                  overflowContext={typeMode ? 'type' : 'voice'}
+                  showCursor={typeMode && phase !== 'result'}
+                />
+              </div>
 
               {!typeMode && (
                 <HoldToSpellButton
@@ -370,26 +400,16 @@ export function MissedWordsScreen({ onBack }: Props) {
               )}
 
               {typeMode && (
-                <div className="mt-8 flex gap-2">
-                  <input
-                    type="text"
-                    value={typedInput}
-                    onChange={(e) => setTypedInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleTypedSubmit()}
-                    placeholder="Type the spelling…"
-                    autoFocus
-                    disabled={phase === 'result'}
-                    className="flex-1 px-4 py-3 rounded-xl border-2 border-coral-200 focus:border-coral-400 text-coral-900 bg-white outline-none text-sm disabled:opacity-50"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleTypedSubmit}
-                    disabled={phase === 'result' || !typedInput.trim()}
-                    className="px-4 py-3 rounded-xl bg-coral-400 hover:bg-coral-600 text-white font-semibold text-sm disabled:opacity-50 transition-colors"
-                  >
-                    Submit
-                  </button>
-                </div>
+                <input
+                  ref={hiddenInputRef}
+                  type="text"
+                  value={typedInput}
+                  onChange={(e) => setTypedInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleTypedSubmit()}
+                  disabled={phase === 'result'}
+                  aria-hidden="true"
+                  className="absolute w-0 h-0 opacity-0 pointer-events-none"
+                />
               )}
 
               {/* Voice / type toggle */}
