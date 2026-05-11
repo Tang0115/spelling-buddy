@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/react';
+import { useUser } from '@clerk/react';
 import {
   loadCustomWords,
-  loadCustomWordsFromPuter,
   parseWordInput,
   saveCustomWords,
   clearCustomWords,
@@ -23,34 +22,33 @@ const GRADE_LABEL: Record<number, string> = {
 };
 
 export function CustomWordsScreen({ onBack }: Props) {
-  const { userId, isLoaded: authLoaded } = useAuth({ treatPendingAsSignedOut: true });
+  const { user, isLoaded } = useUser();
   const existing = loadCustomWords();
   const [input, setInput] = useState(() =>
     existing.map((e) => (e.grade === 3 ? e.word : `${e.word}, ${e.grade}`)).join('\n'),
   );
   const [saved, setSaved] = useState(false);
 
-  // Load from Puter KV when signed in — may have fresher data from another device
+  // Load from Clerk metadata when signed in — survives cookie clears
   useEffect(() => {
-    if (!authLoaded || !userId) return;
-    void loadCustomWordsFromPuter(userId).then((words) => {
-      if (words && words.length > 0) {
-        setInput(words.map((e) => (e.grade === 3 ? e.word : `${e.word}, ${e.grade}`)).join('\n'));
-      }
-    });
-  }, [authLoaded, userId]);
+    if (!isLoaded || !user) return;
+    const cloud = loadCustomWords(user);
+    if (cloud.length > 0) {
+      setInput(cloud.map((e) => (e.grade === 3 ? e.word : `${e.word}, ${e.grade}`)).join('\n'));
+    }
+  }, [isLoaded, user?.id, user]);
 
   const parsed: CustomWordEntry[] = parseWordInput(input);
   const hasParsed = parsed.length > 0;
 
   const handleSave = () => {
-    saveCustomWords(parsed, userId ?? undefined);
+    saveCustomWords(parsed, user ?? undefined);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   const handleClear = () => {
-    clearCustomWords(userId ?? undefined);
+    clearCustomWords(user ?? undefined);
     setInput('');
   };
 

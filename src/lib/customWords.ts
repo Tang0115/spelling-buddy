@@ -1,4 +1,4 @@
-import { kvGet, kvSet } from './puter-kv';
+import type { UserResource } from '@clerk/shared/types';
 
 export interface CustomWordEntry {
   word: string;
@@ -7,7 +7,18 @@ export interface CustomWordEntry {
 
 const KEY = 'spelling-buddy:customWords:v1';
 
-export function loadCustomWords(): CustomWordEntry[] {
+export function loadCustomWords(user?: UserResource | null): CustomWordEntry[] {
+  if (user) {
+    const cloud = user.unsafeMetadata?.customWords as CustomWordEntry[] | undefined;
+    if (Array.isArray(cloud)) {
+      localStorage.setItem(KEY, JSON.stringify(cloud));
+      return cloud.filter(
+        (e): e is CustomWordEntry =>
+          typeof e === 'object' && e !== null && typeof e.word === 'string' && typeof e.grade === 'number',
+      );
+    }
+  }
+
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return [];
@@ -25,26 +36,33 @@ export function loadCustomWords(): CustomWordEntry[] {
   }
 }
 
-export async function loadCustomWordsFromPuter(userId: string): Promise<CustomWordEntry[] | null> {
-  const words = await kvGet<CustomWordEntry[]>(`customWords:${userId}`);
-  if (!Array.isArray(words)) return null;
-  return words.filter(
-    (e): e is CustomWordEntry =>
-      typeof e === 'object' && e !== null && typeof e.word === 'string' && typeof e.grade === 'number',
-  );
-}
-
-export function saveCustomWords(words: CustomWordEntry[], userId?: string): void {
+export function saveCustomWords(words: CustomWordEntry[], user?: UserResource | null): void {
   localStorage.setItem(KEY, JSON.stringify(words));
-  if (userId) {
-    void kvSet(`customWords:${userId}`, words);
+  if (user) {
+    const prev = user.unsafeMetadata;
+    const base =
+      prev && typeof prev === 'object' && !Array.isArray(prev) ? { ...prev } : {};
+    void user.update({
+      unsafeMetadata: {
+        ...base,
+        customWords: words,
+      },
+    });
   }
 }
 
-export function clearCustomWords(userId?: string): void {
+export function clearCustomWords(user?: UserResource | null): void {
   localStorage.removeItem(KEY);
-  if (userId) {
-    void kvSet(`customWords:${userId}`, []);
+  if (user) {
+    const prev = user.unsafeMetadata;
+    const base =
+      prev && typeof prev === 'object' && !Array.isArray(prev) ? { ...prev } : {};
+    void user.update({
+      unsafeMetadata: {
+        ...base,
+        customWords: [],
+      },
+    });
   }
 }
 
